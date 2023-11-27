@@ -30,9 +30,8 @@ app.post("/send", (req, res) => {
   setInitialBalance(recipient);
 
   const publicKey = secp.secp256k1.getPublicKey(privateKey);
-  const sendAddress = toHex(keccak256(publicKey.slice(1)).slice(-20));
 
-  const valid = secp.secp256k1.verify(signedMessage, hashMessage(message), senderAddress)
+  const valid = secp.secp256k1.verify(signedMessage, hashMessage(message), publicKey)
   if (valid) {
     if (balances[sender] < amount) {
       res.status(400).send({ message: "Not enough funds!" });
