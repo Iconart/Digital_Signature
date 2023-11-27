@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 
-const {recoverKey} = require("./recoverKey");
+
 
 app.use(cors());
 app.use(express.json());
@@ -22,8 +22,7 @@ app.get("/balance/:address", (req, res) => {
 
 app.post("/send", (req, res) => {
 
-  let sender = recoverKey(signature, amount);
-  const { signature, recipient, amount } = req.body;
+  const { sender, recipient, amount } = req.body;
   
   setInitialBalance(sender);
   setInitialBalance(recipient);

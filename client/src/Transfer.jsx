@@ -1,6 +1,6 @@
 import { useState } from "react";
 import server from "./server";
-import signMessage from "../signMessage";
+
 
 function Transfer({ address, setBalance, privateKey }) {
   const [sendAmount, setSendAmount] = useState("");
@@ -11,14 +11,13 @@ function Transfer({ address, setBalance, privateKey }) {
   async function transfer(evt) {
     evt.preventDefault();
 
-    const signature = await signMessage(sendAmount, privateKey);
-    console.log(signature);
+  
 
     try {
       const {
         data: { balance },
       } = await server.post(`send`, {
-        signature,
+        sender : address,
         amount: parseInt(sendAmount),
         recipient,
       });
