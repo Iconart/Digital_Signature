@@ -1,8 +1,6 @@
 import { useState } from "react";
 import server from "./server";
-import * as secp  from "ethereum-cryptography/secp256k1";
-import { toHex, uft8ToBytes} from "ethereum-cryptography/utils";
-import { keccak256 } from "ethereum-cryptography/keccak";
+import SignMessage from "../signMessage";
 
 
 function Transfer({ address, setBalance, privateKey }) {
@@ -17,12 +15,17 @@ function Transfer({ address, setBalance, privateKey }) {
   
 
     try {
+      const message = `Send ${sendAmount} to ${recipient}`;
+      const signedMessage = await SignMessage(message, privateKey);
       const {
         data: { balance },
       } = await server.post(`send`, {
         sender : address,
         amount: parseInt(sendAmount),
         recipient,
+        signedMessage,
+        message,
+        privateKey
       });
       setBalance(balance);
     } catch (ex) {

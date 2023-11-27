@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 const secp = require("ethereum-cryptography/secp256k1");
-
+const hashMessage = require("./hash");
 
 
 
@@ -24,18 +24,29 @@ app.get("/balance/:address", (req, res) => {
 
 app.post("/send", (req, res) => {
 
-  const { sender, recipient, amount } = req.body;
+  const { sender, recipient, amount,signedMessage, message, privateKey } = req.body;
   
   setInitialBalance(sender);
   setInitialBalance(recipient);
 
-  if (balances[sender] < amount) {
-    res.status(400).send({ message: "Not enough funds!" });
-  } else {
-    balances[sender] -= amount;
-    balances[recipient] += amount;
-    res.send({ balance: balances[sender] });
+  const publicKey = secp.secp256k1.getPublicKey(privateKey);
+  const sendAddress = toHex(keccak256(publicKey.slice(1)).slice(-20));
+
+  const valid = secp.secp256k1.verify(signedMessage, hashMessage(message), senderAddress)
+  if (valid) {
+    if (balances[sender] < amount) {
+      res.status(400).send({ message: "Not enough funds!" });
+    } else {
+      balances[sender] -= amount;
+      balances[recipient] += amount;
+      res.send({ balance: balances[sender] });
+    }
   }
+  else {
+    res.send("This operation is not allowed from your privateKey");
+  }
+
+  
 });
 
 app.listen(port, () => {
